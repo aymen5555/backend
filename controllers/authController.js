@@ -9,8 +9,7 @@ exports.login = async (req, res) => {
     try {
         const user = await database.query('SELECT * FROM users where cin = $1', [cin]);
         
-        console.log("Database query result:", user); // Debug 2
-        console.log("Number of rows found:", user.rows ? user.rows.length : 0); // Debug 3
+       
         
         if (!user.rows || user.rows.length === 0) { 
             return res.status(404).json({ message: 'User not found' }); 
@@ -27,7 +26,7 @@ exports.login = async (req, res) => {
         res.json({ token, role: userData.role });
         
     } catch (error) {
-        console.error("Login error:", error); // Debug 4
+       
         res.status(500).json({ message: 'Server error', error: error.message });
     }
 }
