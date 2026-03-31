@@ -1,0 +1,48 @@
+require("dotenv").config();
+
+const {Pool} = require ("pg") ; 
+const bcrypt = require('bcrypt');
+const pool=new Pool({
+    user: 'postgres',
+    host: 'localhost',
+    database: "Sante",
+    password: "fedi123aaa",
+    port:  5432,
+});
+// fonction pour insérer un utilisateur
+async function addUser(cin, name, email, password) {
+  const hashedPassword = await bcrypt.hash(password, 10); // hash
+  const result = await pool.query(
+    `INSERT INTO users (cin, name, email, password) 
+     VALUES ($1, $2, $3, $4) RETURNING *`,
+    [cin, name, email, hashedPassword]
+  );
+  console.log("Utilisateur ajouté :", result.rows[0]);
+}
+
+// fonction pour tester login
+async function loginUser(email, inputPassword) {
+  const result = await pool.query(
+    "SELECT * FROM users WHERE email=$1",
+    [email]
+  );
+
+  if(result.rows.length === 0) return console.log("Utilisateur non trouvé");
+
+  const user = result.rows[0];
+  const match = await bcrypt.compare(inputPassword, user.password);
+
+  if(match) {
+    console.log("Login réussi ✅", user);
+  } else {
+    console.log("Mot de passe incorrect ❌");
+  }
+}
+
+// tester
+(async () => {
+  await addUser("1125666", "fedo", "fedo@test.com", "fedi1s"); // insert
+  await loginUser("fedo@test.com", "fedi1s"); // login correct
+  await loginUser("fedo@test.com", "wrongpass"); // login faux
+  pool.end(); // fermer connexion
+})();
