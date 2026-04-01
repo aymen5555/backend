@@ -3,13 +3,13 @@ const jwt = require('jsonwebtoken');
 const database = require('../Database'); 
 
 exports.login = async (req, res) => { 
-    const {cin, password} = req.body;
+    const {email, password} = req.body;
     
     
     try {
-        const user = await database.query('SELECT * FROM users where cin = $1', [cin]);
+        const user = await database.query('SELECT * FROM users where email = $1', [email]);
         
-       
+    
         
         if (!user.rows || user.rows.length === 0) { 
             return res.status(404).json({ message: 'User not found' }); 
