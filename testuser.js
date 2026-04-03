@@ -10,12 +10,12 @@ const pool=new Pool({
     port:  5432,
 });
 // fonction pour insérer un utilisateur
-async function addUser(cin, name, email, password) {
+async function addUser(cin, name, email, password,role) {
   const hashedPassword = await bcrypt.hash(password, 10); // hash
   const result = await pool.query(
-    `INSERT INTO users (cin, name, email, password) 
-     VALUES ($1, $2, $3, $4) RETURNING *`,
-    [cin, name, email, hashedPassword]
+    `INSERT INTO users (cin, name, email, password,role) 
+     VALUES ($1, $2, $3, $4, $5) RETURNING *`,
+    [cin, name, email, hashedPassword, role]
   );
   console.log("Utilisateur ajouté :", result.rows[0]);
 }
@@ -41,8 +41,8 @@ async function loginUser(email, inputPassword) {
 
 // tester
 (async () => {
-  await addUser("1125666", "fedo", "fedo@test.com", "fedi1s"); // insert
-  await loginUser("fedo@test.com", "fedi1s"); // login correct
-  await loginUser("fedo@test.com", "wrongpass"); // login faux
+  await addUser("11210426", "fedo", "fedij565@gmail.com", "fedi12345s","admin"); // insert
+  await loginUser("fedij565@gmail.com", "fedi12345s"); // login correct
+  await loginUser("fedij565@gmail.com", "wrongpass"); // login faux
   pool.end(); // fermer connexion
 })();

@@ -5,8 +5,9 @@ app.use(cors());
 app.use(express.json());
 
 const authRoutes = require("./Route");
-
-app.use("/api", authRoutes);
+const userRoutes = require("./Routeusers");
+app.use("/api", authRoutes); 
+app.use ("/api", userRoutes);
 
 app.listen(5000 , () => {
     console.log("Server is running on port 5000");
