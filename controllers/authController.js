@@ -20,7 +20,10 @@ exports.login = async (req, res) => {
         
         if (!isPasswordValid) { 
             return res.status(401).json({ message: 'Invalid password' }); 
-        } 
+        }  
+
+        const query = 'UPDATE users SET lastlog = NOW() WHERE id = $1';
+        await database.query(query, [userData.id]);
         
         const token = jwt.sign({ userId: userData.id, role: userData.role }, 'your_jwt_secret', { expiresIn: '1h' }); 
         res.json({ token, role: userData.role });
