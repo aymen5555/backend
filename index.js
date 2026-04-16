@@ -7,8 +7,8 @@ app.use(express.json());
 const authRoutes = require("./Route");
 const userRoutes = require("./Routeusers");
 app.use("/api", authRoutes); 
-app.use ("/api", userRoutes);
+app.use("/api", userRoutes);
 
 app.listen(5000 , () => {
-    console.log("Server is running on port 5000");
+    console.log("Server is running on port 3000");
 });
