@@ -10,7 +10,7 @@ exports.login = async (req, res) => {
   }
 
   try {
-    const result = await database.query(
+    const result = await db.query(
       "SELECT * FROM users WHERE email = $1",
       [email]
     );
@@ -48,7 +48,7 @@ exports.verifyEmail = async (req, res) => {
   const { token } = req.query;
 
   try {
-    const result = await database.query(
+    const result = await db.query(
       "SELECT * FROM users WHERE verification_token = $1",
       [token]
     );
@@ -57,7 +57,7 @@ exports.verifyEmail = async (req, res) => {
       return res.status(400).send("Invalid token");
     }
 
-    await database.query(
+    await db.query(
       `UPDATE users
        SET is_verified = true,
            status = 'active',
