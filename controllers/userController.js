@@ -1,5 +1,5 @@
 const db =require("../Database") ;
-exports.getUser = async (req,res) => { 
+exports.getUsers = async (req,res) => { 
     try {
     const role = req.user.role ; 
     if (role !== 'admin') { 
