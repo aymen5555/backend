@@ -25,7 +25,7 @@ exports.login = async (req, res) => {
         const query = 'UPDATE users SET lastlog = NOW() WHERE id = $1';
         await database.query(query, [userData.id]);
         
-        const token = jwt.sign({ userId: userData.id, role: userData.role }, 'your_jwt_secret', { expiresIn: '1h' }); 
+        const token = jwt.sign({ userId: userData.id, role: userData.role }, process.env.JWT_SECRET, { expiresIn: '1h' }); 
         res.json({ token, role: userData.role });
         
     } catch (error) {

@@ -1,7 +1,13 @@
 const express = require('express'); 
 const router = express.Router(); 
-const database = require('./Database');  
 const authController = require('./controllers/authController');
+const authMiddleware = require('./middleware/middleware').verifToken;
+
+// 🔓 login
 router.post('/login', authController.login);
-router.get('/users', require('./midleware/middleware').verifToken, require('./controllers/userget').getUser) ;
+
+// 🔒 users protégés
+router.get('/users', authMiddleware, require('./controllers/userget').getUser);
+
 module.exports = router;
+
