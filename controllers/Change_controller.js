@@ -1,6 +1,9 @@
+const pool = require('../Database');
+const bcrypt = require('bcrypt');
 exports.changePassword = async (req, res) => {
+
     const { currentPassword, newPassword } = req.body;
-    const userId = req.user.id;
+    const userId = req.user.userId; // Assuming the user ID is sent in the request body
     const role = req.user.role;
 
     // Validations
@@ -20,7 +23,7 @@ exports.changePassword = async (req, res) => {
         // Récupérer l'utilisateur
         let query = '';
         if (role === 'medecin') {
-            query = 'SELECT * FROM medecins WHERE id = $1';
+            query = 'SELECT * FROM users WHERE id = $1';
         } 
 
         const result = await pool.query(query, [userId]);
@@ -32,7 +35,7 @@ exports.changePassword = async (req, res) => {
         const user = result.rows[0];
 
         // Vérifier le mot de passe actuel
-        const isMatch = await bcrypt.compare(currentPassword, user.mot_de_passe);
+        const isMatch = await bcrypt.compare(currentPassword, user.password);
         if (!isMatch) {
             return res.status(401).json({ message: 'Mot de passe actuel incorrect.' });
         }
@@ -43,10 +46,13 @@ exports.changePassword = async (req, res) => {
 
         // Mettre à jour le mot de passe + marquer premiere_connexion = false
         let updateQuery = '';
+        let updateFirstLoginQuery = '';
         if (role === 'medecin') {
-            updateQuery = 'UPDATE medecins SET mot_de_passe = $1, premiere_connexion = false WHERE id = $2';
+            updateQuery = 'UPDATE users SET password = $1 WHERE id = $2';
+            updateFirstLoginQuery = 'UPDATE medecins SET first_login =TRUE WHERE utilisateur_id = $1';    
         }
         await pool.query(updateQuery, [hashedPassword, userId]);
+        await pool.query(updateFirstLoginQuery, [userId]);
 
         return res.status(200).json({
             message: 'Mot de passe modifié avec succès.'
@@ -54,7 +60,7 @@ exports.changePassword = async (req, res) => {
 
     } catch (error) {
         console.error('Erreur changePassword:', error);
-        return res.status(500).json({ message: 'Erreur serveur.' });
+        return res.status(500).json({ message: error.message || 'Erreur serveur.' });
     }
 };
 
