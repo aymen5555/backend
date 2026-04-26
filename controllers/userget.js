@@ -6,7 +6,7 @@ exports.getUser = async (req,res) => {
         return res.status(403).json({message:"forbidden"}) ; 
     }  
 
-    const query = 'SELECT id,created_at,name,email,role,cin,plan,lastlog FROM users' ; 
+    const query = 'SELECT id,created_at,nom,prenom,email,role,telephone,lastlog FROM users' ; 
     db.query(query, (err, result) => { 
         if (err) { 
             return res.status(500).json({message:"error"}) ; 

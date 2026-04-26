@@ -63,21 +63,26 @@ exports.createMedecin = async (req, res) => {
     // 💾 Insert dans DB
     const result = await client.query(
       `INSERT INTO users 
-      (nom, prenom, email, password, role, specialite, telephone, cabinet)
-      VALUES ($1,$2,$3,$4,'medecin',$5,$6,$7)
-      RETURNING id, nom, prenom, email, specialite`,
+      (nom, prenom, email, password, role,  telephone)
+      VALUES ($1,$2,$3,$4,$5,$6)
+      RETURNING id, nom, prenom, email`,
       [
         nom.trim(),
         prenom.trim(),
         email.toLowerCase().trim(),
         hashedPassword,
-        specialite,
+        'medecin',
         telephone || null,
-        cabinet || null
+       
       ]
+    ); 
+    const result2= await client.query(
+      `INSERT INTO medecins (utilisateur_id, specialite, cabinet)
+       VALUES ($1, $2, $3)`,
+      [result.rows[0].id, specialite, cabinet || null]
     );
 
-    const newMedecin = result.rows[0];
+    const newMedecin = result.rows[0]; 
 
     await client.query('COMMIT');
 
@@ -103,7 +108,7 @@ exports.createMedecin = async (req, res) => {
     return res.status(201).json({
       success: true,
       message: "Médecin créé avec succès",
-      medecin: newMedecin,
+      medecin: newMedecin
     });
   
   }catch (error) {
