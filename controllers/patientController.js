@@ -29,16 +29,19 @@ exports.registerPatient = async (req, res) => {
 
     const hashed = await bcrypt.hash(password, 10);
 
-    await client.query(
-      `INSERT INTO users (cin, nom, prenom, email, mot_de_passe, role, status, verification_token, is_verified)
-       VALUES ($1,$2,$3,$4,$5,'patient','inactive',$6,false)`,
-      [cin, nom, prenom, email, hashed, token]
-    );
+    const userResult = await client.query(
+    `INSERT INTO users (cin, nom, prenom, email, mot_de_passe, role, status, verification_token, is_verified)
+    VALUES ($1,$2,$3,$4,$5,'patient','inactive',$6,false)
+    RETURNING id`,
+    [cin, nom, prenom, email, hashed, token]
+  );
+
+    const userId = userResult.rows[0].id;
 
     await client.query(
-      `INSERT INTO patients (cin, date_naissance, maladie_chronique)
-       VALUES ($1,$2,$3)`,
-      [cin, date_naissance, maladie_chronique || null]
+      `INSERT INTO patients (cin, date_naissance, maladie_chronique, user_id)
+      VALUES ($1,$2,$3,$4)`,
+      [cin, date_naissance, maladie_chronique || null, userId]
     );
 
     await client.query("COMMIT");
