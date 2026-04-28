@@ -23,6 +23,8 @@ async function createTables() {
       password VARCHAR(255) NOT NULL,
       role VARCHAR(20) NOT NULL CHECK (role IN ('admin', 'medecin', 'patient')),
       telephone VARCHAR(20),
+      reste_code VARCHAR(10),
+      expiration TIMESTAMPTZ,
       created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
       lastlog TIMESTAMPTZ NOT NULL DEFAULT NOW()
     );
