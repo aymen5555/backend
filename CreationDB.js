@@ -146,6 +146,23 @@ async function createTables() {
       summary TEXT,
       created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
     );
+
+    CREATE TABLE IF NOT EXISTS invitations (
+      id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+      patient_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+      medecin_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+      message TEXT,
+      statut VARCHAR(20) NOT NULL DEFAULT 'pending' CHECK (statut IN ('pending', 'cancelled', 'accepted', 'refused')),
+      created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+      updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+    );
+
+    CREATE TABLE IF NOT EXISTS medecin_patients (
+      medecin_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+      patient_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+      created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+      PRIMARY KEY (medecin_id, patient_id)
+    );
   `);
 }
 

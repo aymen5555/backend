@@ -46,3 +46,4 @@ router.post('/medecin/reports', authMiddleware, medecinData.addReport);
 
 module.exports = router;
 
+
