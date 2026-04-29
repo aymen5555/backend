@@ -53,6 +53,100 @@ async function createTables() {
       created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
     );
   `);
+
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS patient_vitals (
+      id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+      patient_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+      measure_date DATE NOT NULL DEFAULT CURRENT_DATE,
+      bpm INTEGER NOT NULL,
+      sys INTEGER NOT NULL,
+      dia INTEGER NOT NULL,
+      temp NUMERIC(4,1) NOT NULL,
+      created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+    );
+
+    CREATE TABLE IF NOT EXISTS patient_biometrics (
+      id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+      patient_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+      measure_date DATE NOT NULL DEFAULT CURRENT_DATE,
+      poids NUMERIC(5,2) NOT NULL,
+      imc NUMERIC(4,1) NOT NULL,
+      created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+    );
+
+    CREATE TABLE IF NOT EXISTS patient_activity (
+      id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+      patient_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+      measure_date DATE NOT NULL DEFAULT CURRENT_DATE,
+      pas INTEGER NOT NULL,
+      dist NUMERIC(6,2) NOT NULL,
+      cal INTEGER NOT NULL,
+      created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+    );
+
+    CREATE TABLE IF NOT EXISTS patient_nutrition (
+      id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+      patient_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+      measure_date DATE NOT NULL DEFAULT CURRENT_DATE,
+      cal INTEGER NOT NULL,
+      qualite VARCHAR(20) NOT NULL,
+      created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+    );
+
+    CREATE TABLE IF NOT EXISTS patient_pathology (
+      id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+      patient_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+      measure_date DATE NOT NULL DEFAULT CURRENT_DATE,
+      glycemie NUMERIC(4,1) NOT NULL,
+      spo2 INTEGER NOT NULL,
+      created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+    );
+
+    CREATE TABLE IF NOT EXISTS patient_goals (
+      id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+      patient_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+      type VARCHAR(60) NOT NULL,
+      cible NUMERIC(10,2) NOT NULL,
+      actuel NUMERIC(10,2) NOT NULL DEFAULT 0,
+      unite VARCHAR(20),
+      periode VARCHAR(20) NOT NULL,
+      icon TEXT,
+      created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+    );
+
+    CREATE TABLE IF NOT EXISTS medecin_prescriptions (
+      id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+      medecin_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+      patient_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+      medicine VARCHAR(120) NOT NULL,
+      dosage VARCHAR(80),
+      duration VARCHAR(80),
+      notes TEXT,
+      status VARCHAR(20) NOT NULL DEFAULT 'active',
+      created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+    );
+
+    CREATE TABLE IF NOT EXISTS medecin_messages (
+      id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+      medecin_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+      patient_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+      subject VARCHAR(120) NOT NULL,
+      body TEXT NOT NULL,
+      status VARCHAR(20) NOT NULL DEFAULT 'sent',
+      created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+    );
+
+    CREATE TABLE IF NOT EXISTS medecin_reports (
+      id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+      medecin_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+      patient_id UUID REFERENCES users(id) ON DELETE SET NULL,
+      period VARCHAR(30) NOT NULL,
+      focus VARCHAR(60) NOT NULL,
+      summary TEXT,
+      created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+    );
+  `);
 }
 
 async function addUser(nom, prenom, email, password, role, telephone = null) {
@@ -93,9 +187,7 @@ async function loginUser(email, inputPassword) {
 async function main() {
   try {
     await createTables();
-    await addUser("fedo", "jerbu", "fedij565@gmail.com", "fedi12345s", "admin", "11210426");
-    await loginUser("fedij565@gmail.com", "fedi12345s");
-    await loginUser("fedij565@gmail.com", "wrongpass");
+    
   } finally {
     await pool.end();
   }
